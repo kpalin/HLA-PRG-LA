@@ -335,6 +335,7 @@ else
 	die "I can't interpret the specified Picard command: $picard_sam2fastq_bin";
 }
 
+
 print "Extract FASTQ...\n\t$FASTQ_extraction_command\n";
 my $FASTQ_extraction_output = `$FASTQ_extraction_command`;
 #if(($FASTQ_extraction_output =~ /Exception/) or ($FASTQ_extraction_output !~ /net.sf.picard.sam.SamToFastq done/))

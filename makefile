@@ -29,8 +29,8 @@ MKDIR_P = mkdir -p
 # object and binary dirs  
 #
 
-DIR_OBJ = ../obj
-DIR_BIN = ../bin
+DIR_OBJ = obj
+DIR_BIN = bin
 
 CXX    = g++
 COPTS  = -ggdb -O2 -fopenmp -std=gnu++0x -fstack-protector-all
@@ -75,7 +75,7 @@ OBJS = \
 #
 EXECS = HLA-PRG-LA
 
-OUT_DIR = ../obj ../bin
+OUT_DIR = obj bin
 
 directories: ${OUT_DIR}
 

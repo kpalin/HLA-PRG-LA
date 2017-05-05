@@ -21,8 +21,9 @@ my $qsub;
 my $samtools_bin;
 my $bwa_bin;
 my $java_bin;
-my $picard_sam2fastq_bin;
 my $workingDir_param;
+my $picard_bin;
+
 my $maxThreads = 1;
 GetOptions (
 	'BAM:s' => \$_BAM,
@@ -33,7 +34,7 @@ GetOptions (
 	'samtools_bin:s' => \$samtools_bin,
 	'bwa_bin:s' => \$bwa_bin,
 	'java_bin:s' => \$java_bin,
-	'picard_sam2fastq_bin:s' => \$picard_sam2fastq_bin,
+	'picard_bin:s' => \$picard_bin,
 	'maxThreads:s' => \$maxThreads,
 );
 
@@ -58,7 +59,7 @@ if(-e $paths_ini)
 $samtools_bin = find_path('samtools_bin', $samtools_bin, 'samtools');
 $bwa_bin = find_path('bwa_bin', $bwa_bin, 'bwa');
 $java_bin = find_path('java_bin', $java_bin, 'java');
-$picard_sam2fastq_bin = find_path('picard_sam2fastq_bin', $picard_sam2fastq_bin, undef);
+$picard_bin = find_path('picard_bin', $picard_bin, 'picard');
 
 my $working_dir;
 if($paths_ini{workingDir}[0] and not defined $workingDir_param)
@@ -95,10 +96,10 @@ print "Identified paths:\n";
 print "\t", "samtools_bin", ": ", $samtools_bin, "\n";
 print "\t", "bwa_bin", ": ", $bwa_bin, "\n";
 print "\t", "java_bin", ": ", $java_bin, "\n";
-print "\t", "picard_sam2fastq_bin", ": ", $picard_sam2fastq_bin, "\n";
 print "\t", "General working directory", ": ", $working_dir, "\n";
 print "\t", "Sample-specific working directory", ": ", $working_dir_thisSample, "\n";
 
+print "\t", "picard_bin", ": ", $picard_bin, "\n";
 print "\n";
 
 
@@ -141,6 +142,14 @@ unless((-e $full_graph_dir . '/sequences.txt') and ((-e $full_graph_dir . '/exte
 {
 	die "Graph directory $full_graph_dir does not seem to be complete - does this directory specify a valid graph for HLA-PRG-LA?";
 }
+
+my $command_PRG_test = '../bin/HLA-PRG-LA --action testBinary';
+
+if(system($command_PRG_test) != 0)
+{
+	die "HLA-PRG-LA execution not successful. Command was $command_PRG_test\n";
+}
+
 
 # get index for this BAM
 my $command_idxstats = qq($samtools_bin idxstats $BAM);
@@ -309,6 +318,7 @@ if(system($index_command) != 0)
 	die "Index command $index_command failed";
 }
 
+
 my $target_FASTQ_1 = $working_dir_thisSample . '/R_1.fastq';
 my $target_FASTQ_2 = $working_dir_thisSample . '/R_2.fastq';
 my $FASTQ_extraction_command;
@@ -324,6 +334,7 @@ else
 {
 	die "I can't interpret the specified Picard command: $picard_sam2fastq_bin";
 }
+
 print "Extract FASTQ...\n\t$FASTQ_extraction_command\n";
 my $FASTQ_extraction_output = `$FASTQ_extraction_command`;
 #if(($FASTQ_extraction_output =~ /Exception/) or ($FASTQ_extraction_output !~ /net.sf.picard.sam.SamToFastq done/))

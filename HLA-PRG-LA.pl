@@ -132,7 +132,7 @@ unless(-e $BAM)
 	}
 }
 
-my $full_graph_dir = $FindBin::RealBin . '/../graphs/' . $graph;
+my $full_graph_dir = $graph;
 my $known_references_dir = $full_graph_dir . '/knownReferences';
 unless(-e $full_graph_dir)
 {
@@ -143,7 +143,7 @@ unless((-e $full_graph_dir . '/sequences.txt') and ((-e $full_graph_dir . '/exte
 	die "Graph directory $full_graph_dir does not seem to be complete - does this directory specify a valid graph for HLA-PRG-LA?";
 }
 
-my $command_PRG_test = '../bin/HLA-PRG-LA --action testBinary';
+my $command_PRG_test = 'HLA-PRG-LA --action testBinary';
 
 if(system($command_PRG_test) != 0)
 {
@@ -321,19 +321,9 @@ if(system($index_command) != 0)
 
 my $target_FASTQ_1 = $working_dir_thisSample . '/R_1.fastq';
 my $target_FASTQ_2 = $working_dir_thisSample . '/R_2.fastq';
-my $FASTQ_extraction_command;
-if($picard_sam2fastq_bin =~ /SamToFastq\.jar$/)
-{
-	$FASTQ_extraction_command = qq($java_bin -Xmx10g -XX:-UseGCOverheadLimit -jar $picard_sam2fastq_bin VALIDATION_STRINGENCY=LENIENT I=$target_extraction F=$target_FASTQ_1 F2=$target_FASTQ_2 2>&1);
-}
-elsif($picard_sam2fastq_bin =~ /picard-tools$/)
-{
-	$FASTQ_extraction_command = qq($picard_sam2fastq_bin SamtoFastq VALIDATION_STRINGENCY=LENIENT I=$target_extraction F=$target_FASTQ_1 F2=$target_FASTQ_2 2>&1);
-}
-else
-{
-	die "I can't interpret the specified Picard command: $picard_sam2fastq_bin";
-}
+
+my $FASTQ_extraction_command = qq($picard_bin SamToFastq VALIDATION_STRINGENCY=LENIENT I=$target_extraction F=$target_FASTQ_1 F2=$target_FASTQ_2 2>&1);
+
 
 
 print "Extract FASTQ...\n\t$FASTQ_extraction_command\n";
@@ -352,12 +342,10 @@ my $mapAgainstCompleteGenome = ($extractContigs_complete_byFile{$compatible_refe
 $mapAgainstCompleteGenome = 0;
 
 my $host = hostname();
-my $MHC_PRG_2_bin = (($host =~ /rescomp/) or ($host =~ /comp[ABC]/)) ? '../bin_cluster3/HLA-PRG-LA' : '../bin/HLA-PRG-LA';
 
-my $previous_dir = getcwd;
-chdir($this_bin_dir) or die "Cannot cd into $this_bin_dir";
+my $MHC_PRG_2_bin = 'HLA-PRG-LA';
 
-die "Binary $MHC_PRG_2_bin not there!" unless(-e $MHC_PRG_2_bin);
+
 my $command_MHC_PRG = qq($MHC_PRG_2_bin --action HLA --maxThreads $maxThreads --sampleID $sampleID --outputDirectory $working_dir_thisSample --PRG_graph_dir $full_graph_dir --FASTQ1 $target_FASTQ_1 --FASTQ2 $target_FASTQ_2 --bwa_bin $bwa_bin --samtools_bin $samtools_bin --mapAgainstCompleteGenome $mapAgainstCompleteGenome);
 
 print "\nNow executing:\n$command_MHC_PRG\n";

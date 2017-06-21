@@ -355,7 +355,6 @@ if(system($command_MHC_PRG) != 0)
 	die "HLA-PRG-LA execution not successful. Command was $command_MHC_PRG\n";
 }
 
-chdir($previous_dir) or die "Cannot cd into $previous_dir";
 
 sub find_path
 {
